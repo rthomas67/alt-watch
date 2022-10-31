@@ -18,5 +18,16 @@
                 "https://*.youtube.com/*"
             ]
         }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "images/icon-48.png"
+            ],
+            "matches": [
+                "https://*.youtube.com/*"
+            ],
+            "use_dynamic_url": true
+        }
     ]
 }
