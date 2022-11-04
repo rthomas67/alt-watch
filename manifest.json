@@ -12,6 +12,8 @@
     "content_scripts": [
         {
             "js": [
+                "assets/jquery_3_6_1.min.js",
+                "assets/jquery-ui_1_13_2.min.js",
                 "scripts/content.js"
             ],
             "run_at": "document_end",
@@ -23,7 +25,10 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "images/icon-48.png"
+                "images/icon-32.png",
+                "images/platform-odysee-32.png",
+                "images/platform-rumble-32.png",
+                "images/platform-vimeo-32.png"
             ],
             "matches": [
                 "https://*.youtube.com/*"
