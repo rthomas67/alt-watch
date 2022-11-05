@@ -16,6 +16,9 @@
                 "assets/jquery-ui_1_13_2.min.js",
                 "scripts/content.js"
             ],
+            "css": [
+                "assets/jquery-ui.min.css"
+            ],
             "run_at": "document_end",
             "matches": [
                 "https://*.youtube.com/*"

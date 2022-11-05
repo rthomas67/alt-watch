@@ -11,5 +11,6 @@ if [ ! -f jquery-ui-1.13.2.zip ]; then
     echo "Downloading jquery-ui"
     wget https://jqueryui.com/resources/download/jquery-ui-1.13.2.zip
     unzip -j jquery-ui-1.13.2.zip */jquery-ui.min.js
+    unzip -j jquery-ui-1.13.2.zip */jquery-ui.min.css
     mv jquery-ui.min.js jquery-ui_1_13_2.min.js
 fi

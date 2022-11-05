@@ -94,24 +94,30 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
 
     altwatchDiv.appendChild(altwatchLinkPopupDiv);
 
+    // This initializes the new div as a hidden, popup ready, jquery dialog
+    $( altwatchLinkPopupDiv ).dialog({
+        autoOpen: false,
+        width: 400,
+        height: 400,
+        show: {
+            effect: "blind",
+            duration: 1000
+        },
+        hide: {
+            effect: "explode",
+            duration: 1000
+        }
+    });
+
     altwatchButtonLink.href = "#" + altwatchLinkPopupDiv.id;
 
     // Use jquery to add an onClick handler function to the altwatch button, that
     // will pop up a dialog with the found links.
     // $( altwatchButtonLink ).css("background-color", "blue");  // tests to be sure selector is working
-    // const opt = {
-    //     autoOpen: false,
-    //     modal: true,
-    //     title: "alt-watch",
-    //     width: 400,
-    //     height: 400,
-    //     show: { effect: "blind", duration: 1000 },
-    //     hide: { effect: "explode", duration: 1000 }
-    // }
-    // TODO: find out why this handler doesn't get invoked, but the "click" is still passed back to the open-video handler instead
-    // $( altwatchButtonLink ).on( "click", function() {
-    //     $( "#" + altwatchLinkPopupDiv.id ).dialog(opt).dialog("open");
-    // });
+    // This attaches a handler function to the button that opens the corresponding dialog div with links
+    $( altwatchButtonLink ).on( "click", function() {
+         $( "#" + altwatchLinkPopupDiv.id ).dialog("open");
+    });
 
 }
 

@@ -1,3 +1,5 @@
 .idea
 *.iml
 assets/*.js
+assets/*.zip
+assets/*.css
