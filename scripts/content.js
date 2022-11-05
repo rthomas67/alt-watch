@@ -11,6 +11,7 @@ function createUUID() {
 }
 
 function addAltwatchDiv(videoDetailsDiv) {
+    document.create
     avatarLink = videoDetailsDiv.querySelector("a[id='avatar-link']");
     if (!avatarLink) {
         // TODO: Find out why this happens.  Is the content just not populated yet?  Is this normal?
@@ -76,20 +77,19 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
     //   an XMLHttpRequest might be the only option here.
     //   See:
     altwatchLinkPopupDiv = document.createElement("div");
-    altwatchLinkPopupDiv.setAttribute("data-role", "popup");
-    altwatchLinkPopupDiv.classList.add("ui-content")
+    altwatchLinkPopupDiv.style.zIndex = "3000 !important";  // be sure it appears on top of all the yt 2000+ z-indexes
     altwatchLinkPopupDiv.id="altwatch-link-popup-" + createUUID();  // appended UUID for unique ref below
     rumbleVideoId="12345";
     odyseeVideoId="5551212";
     vimeoVideoId="7ba98fe76c2b";
     // TODO: Style the list of target buttons better than this.
     altwatchLinkPopupDiv.innerHTML =
-        "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'" +
-        ">Close</a>" +
-        "<form style='display: flex; flex-direction: column; width: 100%; height: 95%;'>" +
-        "<a href='https://rumble.com?v=" + rumbleVideoId + "'><span><input src='' id='altwatchTarget' /> View on Rumble</span></a>" +
-        "<a href='https://odysee.com?id=" + odyseeVideoId + "'><span><image src='' id='altwatchTarget' /> View on Odysee</span></a>" +
-        "<a href='https://vimeo.com?watch=" + vimeoVideoId + "'><span><image src='' id='altwatchTarget' /> View on Vimeo</span></a>" +
+        "<form>" +
+        "<div style='display: flex; flex-direction: column; width: 100%; height: 95%;'>" +
+        "<a href='https://rumble.com?v=" + rumbleVideoId + "'><span><img src='" + rumble32url + "' id='altwatchTarget' /> View on Rumble</span></a>" +
+        "<a href='https://odysee.com?id=" + odyseeVideoId + "'><span><img src='" + odysee32url + "' id='altwatchTarget' /> View on Odysee</span></a>" +
+        "<a href='https://vimeo.com?watch=" + vimeoVideoId + "'><span><img src='" + vimeo32url + "' id='altwatchTarget' /> View on Vimeo</span></a>" +
+        "</div>" +
         "</form>"
 
     altwatchDiv.appendChild(altwatchLinkPopupDiv);
@@ -97,16 +97,10 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
     // This initializes the new div as a hidden, popup ready, jquery dialog
     $( altwatchLinkPopupDiv ).dialog({
         autoOpen: false,
-        width: 400,
-        height: 400,
-        show: {
-            effect: "blind",
-            duration: 1000
-        },
-        hide: {
-            effect: "explode",
-            duration: 1000
-        }
+        modal: true,
+        dialogClass: 'HighZIndexOverYouTubeElements',
+        width: 200,
+        height: 250,
     });
 
     altwatchButtonLink.href = "#" + altwatchLinkPopupDiv.id;
@@ -116,7 +110,15 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
     // $( altwatchButtonLink ).css("background-color", "blue");  // tests to be sure selector is working
     // This attaches a handler function to the button that opens the corresponding dialog div with links
     $( altwatchButtonLink ).on( "click", function() {
-         $( "#" + altwatchLinkPopupDiv.id ).dialog("open");
+        // reposition to the right and above the button that pops up the dialog
+        // TODO: Get this working.  It still shows up in the center of the page.
+        $( "#" + altwatchLinkPopupDiv.id ).dialog("widget")
+            .position({
+                my: 'center top',
+                at: 'left center',
+                of: $( altwatchButtonLink )
+            });
+        $( "#" + altwatchLinkPopupDiv.id ).dialog("open");
     });
 
 }

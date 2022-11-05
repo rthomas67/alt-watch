@@ -17,7 +17,10 @@
                 "scripts/content.js"
             ],
             "css": [
-                "assets/jquery-ui.min.css"
+                "assets/jquery-ui_1_13_2.min.css",
+                "assets/jquery-ui_1_13_2.structure.min.css",
+                "assets/jquery-ui_1_13_2.theme.min.css",
+                "css/ExtensionContentMods.css"
             ],
             "run_at": "document_end",
             "matches": [
@@ -31,7 +34,8 @@
                 "images/icon-32.png",
                 "images/platform-odysee-32.png",
                 "images/platform-rumble-32.png",
-                "images/platform-vimeo-32.png"
+                "images/platform-vimeo-32.png",
+                "assets/jquery-ui_1_13_2-images/*.png"
             ],
             "matches": [
                 "https://*.youtube.com/*"
