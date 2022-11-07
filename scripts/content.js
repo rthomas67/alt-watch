@@ -99,35 +99,26 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
         autoOpen: false,
         modal: true,
         dialogClass: 'AltWatchPopupDialog',
+        collision: "none",
         width: 200,
-        height: 250,
+        height: 175,
     });
 
-    // Use jquery to add an onClick handler function to the altwatch button, that
-    // will pop up a dialog with the found links.
-    // $( altwatchButtonLink ).css("background-color", "blue");  // tests to be sure selector is working
-    // This attaches a handler function to the button that opens the corresponding dialog div with links
-    $( altwatchButtonLink ).on( "click", function(e) {
-        // reposition to the right and above the button that pops up the dialog
-        var buttonImage = $(this).find("img");
-        // TODO: Get this working.  It still shows up in the center of the page.
-        console.log("typeof(buttonLink): " + typeof(buttonImage.get(0)));
-        console.log("buttonLink.nodeName: " + buttonImage.get(0).nodeName);
-        console.log("buttonLink.position(): " + buttonImage.position().left + ":" + buttonImage.position().top);
-        console.log("click event pageX,pageY: " + e.pageX + "," + e.pageY);
-        console.log("scrollLeft,scrollTop: " + $.scrollLeft() + "," + $.scrollTop());
-        $( "#" + altwatchLinkPopupDiv.id ).dialog("widget")
-            .position({
-                my: 'left top',
-                at: 'left bottom',
-                of: e
+    // Attach an onClick handler function to the altwatch button (a/img), which will position
+    // and pop up a JQuery dialog containing links to like videos on other platforms.
+    $( altwatchButtonLink ).on( "click", function(event) {
+        // Get a JQuery object reference to the dialog popup div element
+        // See: https://api.jqueryui.com/dialog/#method-option
+        var dialogRef = $( "#" + altwatchLinkPopupDiv.id );
+        // Set the position attribute of the dialog wrapper element relative to the a/img element that was clicked
+        // left bottom of dialog aligned with left bottom of a/img "button" should cover the button and pop up above/right
+        // See: https://api.jqueryui.com/position/
+        dialogRef.dialog("option", "position", {
+                my: 'left bottom',
+                at: 'top right',
+                of: event.target
             });
-        //var x = e.pageX; // -$(document).scrollLeft();
-        //var y = e.pageY; // -$(document).scrollTop();
-        // Note: The object returned by the id is the div within the popup dialog, so the dialog
-        // itself, for positioning purposes, is the parent div.
-        $( "#" + altwatchLinkPopupDiv.id ).dialog( "option", "position", [x,y]);
-        $( "#" + altwatchLinkPopupDiv.id ).dialog("open");
+        dialogRef.dialog("open");
     });
 
 }
