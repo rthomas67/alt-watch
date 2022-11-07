@@ -1,3 +1,4 @@
-.HighZIndexOverYouTubeElements {
+.AltWatchPopupDialog {
+    position: absolute;
     z-index: 3000;
 }

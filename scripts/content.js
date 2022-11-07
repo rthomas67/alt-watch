@@ -98,26 +98,35 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
     $( altwatchLinkPopupDiv ).dialog({
         autoOpen: false,
         modal: true,
-        dialogClass: 'HighZIndexOverYouTubeElements',
+        dialogClass: 'AltWatchPopupDialog',
         width: 200,
         height: 250,
     });
-
-    altwatchButtonLink.href = "#" + altwatchLinkPopupDiv.id;
 
     // Use jquery to add an onClick handler function to the altwatch button, that
     // will pop up a dialog with the found links.
     // $( altwatchButtonLink ).css("background-color", "blue");  // tests to be sure selector is working
     // This attaches a handler function to the button that opens the corresponding dialog div with links
-    $( altwatchButtonLink ).on( "click", function() {
+    $( altwatchButtonLink ).on( "click", function(e) {
         // reposition to the right and above the button that pops up the dialog
+        var buttonImage = $(this).find("img");
         // TODO: Get this working.  It still shows up in the center of the page.
+        console.log("typeof(buttonLink): " + typeof(buttonImage.get(0)));
+        console.log("buttonLink.nodeName: " + buttonImage.get(0).nodeName);
+        console.log("buttonLink.position(): " + buttonImage.position().left + ":" + buttonImage.position().top);
+        console.log("click event pageX,pageY: " + e.pageX + "," + e.pageY);
+        console.log("scrollLeft,scrollTop: " + $.scrollLeft() + "," + $.scrollTop());
         $( "#" + altwatchLinkPopupDiv.id ).dialog("widget")
             .position({
-                my: 'center top',
-                at: 'left center',
-                of: $( altwatchButtonLink )
+                my: 'left top',
+                at: 'left bottom',
+                of: e
             });
+        //var x = e.pageX; // -$(document).scrollLeft();
+        //var y = e.pageY; // -$(document).scrollTop();
+        // Note: The object returned by the id is the div within the popup dialog, so the dialog
+        // itself, for positioning purposes, is the parent div.
+        $( "#" + altwatchLinkPopupDiv.id ).dialog( "option", "position", [x,y]);
         $( "#" + altwatchLinkPopupDiv.id ).dialog("open");
     });
 
