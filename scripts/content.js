@@ -76,10 +76,6 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
     altwatchLinkPopupDiv = document.createElement("div");
     altwatchLinkPopupDiv.style.zIndex = "3000 !important";  // be sure it appears on top of all the yt 2000+ z-indexes
     altwatchLinkPopupDiv.id="altwatch-link-popup-" + createUUID();  // appended UUID for unique ref below
-    rumbleVideoId="12345";
-    odyseeVideoId="5551212";
-    vimeoVideoId="7ba98fe76c2b";
-    // TODO: Style the list of target buttons better than this.
     altwatchLinkPopupDiv.innerHTML =
         "<div class='AltLinkStack'>" +
         // link items will be added here by service worker callback in loadAlternativeVideoLinks function
@@ -145,17 +141,10 @@ function loadAlternativeVideoLinks(targetDivId, videoTitle, creatorName) {
         console.log("flexColumnDiv: " + flexColumnDiv);
         for (alternativeVideoLink of response.alternativeVideoLinks) {
             console.log(response.targetDivId + " --> " + alternativeVideoLink.targetUrl);
-            // TODO: Add icon and div wrapper here.
-            // TODO: put the 32url references in a map keyed by the "platform" string from the plugin
-            //   or maybe have the plugin supply the url for the graphic directly in the alternateVideoLink result object
-//            "<a href='https://rumble.com?v=" + rumbleVideoId + "'>
-//                  <span><img src='" + rumble32url + "' id='altwatchTarget' /> View on Rumble</span></a>" +
-//            "<a href='https://odysee.com?id=" + odyseeVideoId + "'>
-//                  <span><img src='" + odysee32url + "' id='altwatchTarget' /> View on Odysee</span></a>" +
-//            "<a href='https://vimeo.com?watch=" + vimeoVideoId + "'>
-//                  <span><img src='" + vimeo32url + "' id='altwatchTarget' /> View on Vimeo</span></a>" +
+            // ENHANCE: Maybe have the plugin supply the url for the graphic directly in the alternateVideoLink result object
             const linkAnchor = document.createElement("a");
             linkAnchor.href = alternativeVideoLink.targetUrl;
+            linkAnchor.target = "_blank";
             linkAnchor.innerHTML = "<div class='AltWatchLink'><img src='" + image32Urls[alternativeVideoLink.platform] + "' id='altwatchTarget' />View on " +
                 alternativeVideoLink.platform + "</div>";
             // Put the video link in the flex-column div
