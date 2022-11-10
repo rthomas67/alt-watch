@@ -2,6 +2,11 @@ const button32url = chrome.runtime.getURL("images/icon-32.png");
 const vimeo32url = chrome.runtime.getURL("images/platform-vimeo-32.png");
 const odysee32url = chrome.runtime.getURL("images/platform-odysee-32.png");
 const rumble32url = chrome.runtime.getURL("images/platform-rumble-32.png");
+const image32Urls = {
+    "odysee": odysee32url,
+    "rumble": rumble32url,
+    "vimeo": vimeo32url
+}
 
 function createUUID() {
     // See: https://www.arungudelli.com/tutorial/javascript/how-to-create-uuid-guid-in-javascript-with-examples/
@@ -10,15 +15,7 @@ function createUUID() {
     );
 }
 
-function addAltwatchDiv(videoDetailsDiv) {
-    document.create
-    avatarLink = videoDetailsDiv.querySelector("a[id='avatar-link']");
-    if (!avatarLink) {
-        // TODO: Find out why this happens.  Is the content just not populated yet?  Is this normal?
-        console.log("WARNING: Couldn't find avatar-link anchor within details div: " + videoDetailsDiv.id
-        + " - a#avatar-link: " + avatarLink);
-        return;
-    }
+function addAltwatchDiv(videoDetailsDiv, avatarLink) {
     metaDiv = videoDetailsDiv.querySelector("div#meta");
     videoTitleLink = videoDetailsDiv.querySelector("a[id='video-title-link']");
     videoTitle = (videoTitleLink) ? videoTitleLink.textContent : "unknown";
@@ -84,13 +81,9 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
     vimeoVideoId="7ba98fe76c2b";
     // TODO: Style the list of target buttons better than this.
     altwatchLinkPopupDiv.innerHTML =
-        "<form>" +
-        "<div style='display: flex; flex-direction: column; width: 100%; height: 95%;'>" +
-        "<a href='https://rumble.com?v=" + rumbleVideoId + "'><span><img src='" + rumble32url + "' id='altwatchTarget' /> View on Rumble</span></a>" +
-        "<a href='https://odysee.com?id=" + odyseeVideoId + "'><span><img src='" + odysee32url + "' id='altwatchTarget' /> View on Odysee</span></a>" +
-        "<a href='https://vimeo.com?watch=" + vimeoVideoId + "'><span><img src='" + vimeo32url + "' id='altwatchTarget' /> View on Vimeo</span></a>" +
-        "</div>" +
-        "</form>"
+        "<div class='AltLinkStack'>" +
+        // link items will be added here by service worker callback in loadAlternativeVideoLinks function
+        "</div>"
 
     altwatchDiv.appendChild(altwatchLinkPopupDiv);
 
@@ -119,22 +112,73 @@ function createAltwatchLinksPopup(videoTitle, altwatchDiv, altwatchButtonLink) {
                 of: event.target
             });
         dialogRef.dialog("open");
+        // Note: This is deferred until the popup is actually shown, to avoid a flood of background
+        //  requests to load search results that will likely never be used.
+        loadAlternativeVideoLinks(altwatchLinkPopupDiv.id, videoTitle, "TODO:findCreatorFromPage");
+        // The dialog content will be empty / blank until the callback function is invoked to
+        // substitute the response (links, if found)
+        // TODO: Maybe put generic search links in the dialog for the impatient to click and
+        //  navigate immediately with the video title and creator filled in as search args.
     });
 
+
+}
+
+/*
+ * Send message to the background script listener (service worker) to search for alternative platform
+ * video links asynchronously, and then call back here to fill in the popup div contents.
+ */
+function loadAlternativeVideoLinks(targetDivId, videoTitle, creatorName) {
+    console.log("Sending message to service worker for: " + targetDivId +
+        ",'" + videoTitle + "', '" + creatorName + "'");
+    chrome.runtime.sendMessage({
+        targetDivId: targetDivId,
+        videoTitle: videoTitle,
+        creatorName: creatorName
+    }, function(response) {
+        console.log("Receiving links from service worker for popup div: " + targetDivId);
+        const targetDivSelector = "#" + targetDivId;
+        console.log("Selector: " + targetDivSelector);
+        const targetDiv = $(targetDivSelector);
+        console.log("Div: " + targetDiv);
+        const flexColumnDiv = $(targetDivSelector + " > div");
+        console.log("flexColumnDiv: " + flexColumnDiv);
+        for (alternativeVideoLink of response.alternativeVideoLinks) {
+            console.log(response.targetDivId + " --> " + alternativeVideoLink.targetUrl);
+            // TODO: Add icon and div wrapper here.
+            // TODO: put the 32url references in a map keyed by the "platform" string from the plugin
+            //   or maybe have the plugin supply the url for the graphic directly in the alternateVideoLink result object
+//            "<a href='https://rumble.com?v=" + rumbleVideoId + "'>
+//                  <span><img src='" + rumble32url + "' id='altwatchTarget' /> View on Rumble</span></a>" +
+//            "<a href='https://odysee.com?id=" + odyseeVideoId + "'>
+//                  <span><img src='" + odysee32url + "' id='altwatchTarget' /> View on Odysee</span></a>" +
+//            "<a href='https://vimeo.com?watch=" + vimeoVideoId + "'>
+//                  <span><img src='" + vimeo32url + "' id='altwatchTarget' /> View on Vimeo</span></a>" +
+            const linkAnchor = document.createElement("a");
+            linkAnchor.href = alternativeVideoLink.targetUrl;
+            linkAnchor.innerHTML = "<div class='AltWatchLink'><img src='" + image32Urls[alternativeVideoLink.platform] + "' id='altwatchTarget' />View on " +
+                alternativeVideoLink.platform + "</div>";
+            // Put the video link in the flex-column div
+            flexColumnDiv.append(linkAnchor);
+        }
+    });
 }
 
 function handleVideoDetailsDivs(videoDetailsDivs) {
     // `document.querySelector` may return null if the selector doesn't match anything.
     let modifiedCount = 0;
     videoDetailsDivs.forEach((videoDetailsDiv) => {
+        // Check to see if the avatar-link has been populated yet.
+        var avatarLink = videoDetailsDiv.querySelector("a[id='avatar-link']");
         // Check to see if the altwatch div has already been added
-        existingAltwatchDiv = videoDetailsDiv.querySelector("div#altwatch");
-        if (!existingAltwatchDiv) {
-            console.log("when false existingAltwatchDiv is: " + existingAltwatchDiv);
-            addAltwatchDiv(videoDetailsDiv);
+        var existingAltwatchDiv = videoDetailsDiv.querySelector("div#altwatch");
+        // Add the AltwatchDiv after the avatar-link has shown up, and only once
+        if (avatarLink && !existingAltwatchDiv) {
+            // console.log("DEBUG when false existingAltwatchDiv is: " + existingAltwatchDiv);
+            addAltwatchDiv(videoDetailsDiv, avatarLink);
             modifiedCount++;
-        } else {
-            console.log("when true existingAltwatchDiv is: " + existingAltwatchDiv);
+        // } else {
+            //console.log("when true existingAltwatchDiv is: " + existingAltwatchDiv);
         }
     });
     if (modifiedCount > 0) {

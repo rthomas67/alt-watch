@@ -2,3 +2,22 @@
     position: absolute;
     z-index: 3000;
 }
+
+.AltWatchLink {
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.AltWatchLink img {
+    margin-right: 10px;
+}
+
+.AltLinkStack {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 95%;
+}
